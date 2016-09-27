@@ -5,8 +5,24 @@ from __future__ import unicode_literals
 from functools import wraps
 import logging
 
+from six import iteritems
+
 __version__ = '0.0.0'
 log = logging.getLogger(__name__)
+
+
+OPTIONAL_CONFIG = dict(
+    region='us-east-1',
+    role=None,
+    timeout=30,
+    memory=128,
+    extra_files=[],
+    ignore_files=[],
+    requirements=[],
+    vpc=None,
+    subnets=None,
+    security_groups=None,
+)
 
 
 class Dancer(object):
@@ -19,27 +35,37 @@ class Dancer(object):
             self,
             function,
             name=None,
-            description=None,
-            timeout=None,
-            memory=None,
+            description='',
+            **kwargs
     ):
-        """
-        Adds function to self to make it callable.
+        """Creates a dancer object to let us know something has
+        been decorated and store the function as the callable.
 
         Args:
             function (callable): Function to wrap.
             name (str): Name of function.
             description (str): Description of function.
-            timeout (int): Maximum seconds allowed for function to run.
-            memory (int): Number of MiBs of ram allowed to use.
+            kwargs: See ``OPTIONAL_CONFIG`` for options, if not
+                specified in dancer, the Lambada objects configuration is
+                used, and if that is unspecified, the defaults listed there
+                are used.
         """
-        # pylint: disable=too-many-arguments
-
         self.function = function
         self.name = name
         self.description = description
-        self.timeout = timeout
-        self.memory = memory
+        self.override_config = kwargs
+
+    @property
+    def config(self):
+        """
+        A dictionary of configuration variables that can be merged in with
+        the Lambada object
+        """
+        return dict(
+            name=self.name,
+            description=self.description,
+            **self.override_config
+        )
 
     def __call__(self, *args, **kwargs):
         """
@@ -55,38 +81,15 @@ class Lambada(object):
     """
     # pylint: disable=too-few-public-methods
 
-    def __init__(
-            self,
-            handler='lambda.tune',
-            region=None,
-            role=None,
-            timeout=30,
-            memory=128,
-            extra_files=None,
-            ignore_files=None,
-            vpc=None,
-            subnets=None,
-            security_groups=None,
-    ):
+    def __init__(self, handler='lambda.tune', **kwargs):
         """
         Setup the data structure of dancers and do some auto configuration
-        for us with deploying to AWS using ``lambda-uploader``.
+        for us with deploying to AWS using ``lambda-uploader``. See
+        ``OPTIONAL_CONFIG`` for arguments and defaults.
         """
-        # pylint: disable=too-many-arguments
-
-        self.config = dict(
-            extra_files=extra_files or [],
-            handler=handler,
-            ignore_files=ignore_files or [],
-            memory=memory,
-            region=region,
-            role=role,
-            timeout=timeout,
-            # VPC config
-            vpc=vpc,
-            security_groups=security_groups,
-            subnets=subnets,
-        )
+        self.config = dict(handler=handler)
+        for key, default in iteritems(OPTIONAL_CONFIG):
+            self.config[key] = kwargs.get(key, default)
         log.debug('Base lambada configuration is: %r', self.config)
         self.dancers = {}
 
@@ -111,9 +114,8 @@ class Lambada(object):
     def dancer(
             self,
             name=None,
-            description=None,
-            timeout=None,
-            memory=None
+            description='',
+            **kwargs
     ):
         """
         Wrapper that adds a given function to the dancers dictionary to be
@@ -122,8 +124,13 @@ class Lambada(object):
         Args:
             name (str): Optional lambda function name (default uses the name
                 of the function decorated.
+            description (str): Description field in AWS of the function.
+            kwargs: Key/Value overrides of either defaults or Lambada class
+                configuration values. See ``OPTIONAL_CONFIG`` for
+                available options.
         Returns:
-            function: Wrapped function
+            Dancer: Object with configuration and callable that is the function
+                being wrapped
         """
 
         def _dancer(func):
@@ -157,7 +164,7 @@ class Lambada(object):
                 real_name = name
 
             self.dancers[real_name] = Dancer(
-                _decorator, real_name, description, timeout, memory
+                _decorator, real_name, description, **kwargs
             )
 
             return self.dancers[real_name]

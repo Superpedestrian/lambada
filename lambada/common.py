@@ -5,8 +5,10 @@ import imp
 from glob import glob
 import os
 import time
+import traceback
 
 import click
+from lambda_uploader.config import Config, REQUIRED_PARAMS
 
 from lambada import Lambada
 
@@ -38,6 +40,7 @@ def get_lambada_class(path):
                 counter += 1
             except (Exception, SystemExit):
                 click.echo('Unable to import {}'.format(python_file))
+                click.echo('Got stack trace:\n{}'.format(traceback.print_exc))
 
     elif os.path.isfile(path):
         module_list.append(
@@ -65,6 +68,27 @@ def get_time_millis():
     Returns the current time in milliseconds since epoch.
     """
     return int(round(time.time() * 1000))
+
+
+class LambadaConfig(Config):
+    """
+    Small override to load config from dictionary instead
+    of from a configuration file.
+    """
+    def __init__(self, path, config):
+        """
+        Takes config dictionary directly instead of
+        retrieving it from a configuration file.
+        """
+        # pylint: disable=super-init-not-called
+        self._path = path
+        self.config = self._config = config
+        self._set_defaults()
+        if self._config['vpc']:
+            self._validate_vpc()
+
+        for param, clss in REQUIRED_PARAMS.items():
+            self._validate(param, cls=clss)
 
 
 class LambdaContext(object):

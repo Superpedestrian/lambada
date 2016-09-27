@@ -3,6 +3,7 @@ Sample lambda library using lambada for use in multiple AWSXS lambdas.
 """
 from __future__ import unicode_literals, print_function
 import logging
+from os import environ
 
 from lambada import Lambada
 
@@ -13,6 +14,7 @@ log.setLevel(logging.DEBUG)
 tune = Lambada(
     handler='lambda.tune',
     region='us-east-1',
+    role=environ.get('LAMBADA_ROLE')
 )
 
 

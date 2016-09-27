@@ -6,8 +6,32 @@ import os
 
 import click
 from lambda_uploader.package import build_package
+from lambda_uploader.uploader import PackageUploader
+from six import iteritems
 
-from lambada.common import get_lambada_class, LambdaContext
+from lambada.common import get_lambada_class, LambadaConfig, LambdaContext
+
+ZIPFILE_UPLOAD_NAME = 'lambada.zip'
+
+
+def create_package(path, tune, requirements, destination=ZIPFILE_UPLOAD_NAME):
+    """
+    Creates and returns the package using ``lambda_uploader``.
+    """
+
+    if os.path.isfile(path):
+        path = os.path.dirname(path)
+    path = os.path.abspath(path)
+    pkg = build_package(
+        path,
+        requirements,
+        virtualenv=None,
+        ignore=tune.config['ignore_files'],
+        extra_files=tune.config['extra_files'],
+        zipfile_name=destination
+    )
+    pkg.clean_workspace()
+    return pkg
 
 
 @click.group()
@@ -40,12 +64,12 @@ def list_dancers(obj):
         click.echo('{}{}'.format(' ' * 4, item))
 
     click.echo('List of discovered lambda functions/dancers:')
-    for _, dancer in obj['tune'].dancers.iteritems():
+    for _, dancer in iteritems(obj['tune'].dancers):
+        click.echo()
         click.echo('{}:'.format(dancer.name))
         indent_echo('description: {}'.format(dancer.description))
-        indent_echo('timeout: {}'.format(dancer.timeout))
-        indent_echo('memory: {}'.format(dancer.memory))
-        click.echo()
+        for (key, value) in dancer.override_config.items():
+            indent_echo('{}: {}'.format(key, value))
 
 
 @cli.command()
@@ -85,17 +109,48 @@ def package(obj, requirements, destination):
     Creates a zip file with everything needed to upload to AWS Lambda
     manually.  Useful for checking everything out before uploading.
     """
-    path = obj['path']
+    create_package(obj['path'], obj['tune'], requirements, destination)
+
+
+@cli.command()
+@click.argument('dancer', required=False)
+@click.option(
+    '--requirements',
+    default='./requirements.txt',
+    envvar='LAMBADA_REQUIREMENTS',
+    help='Path to requirements.txt to include in package',
+    type=click.Path(exists=True, dir_okay=False)
+)
+@click.pass_obj
+def upload(obj, requirements, dancer):
+    """
+    Upload all lambda functions.
+    """
     tune = obj['tune']
-    if os.path.isfile(path):
-        path = os.path.dirname(path)
-    path = os.path.abspath(path)
-    pkg = build_package(
-        path,
-        requirements,
-        virtualenv=None,
-        ignore=tune.config['ignore_files'],
-        extra_files=tune.config['extra_files'],
-        zipfile_name=destination
+    click.echo('Creating package')
+    pkg = create_package(
+        obj['path'], obj['tune'], requirements
     )
-    pkg.clean_workspace()
+
+    def upload_dancer(dancer):
+        """
+        Uploads the given dancer.
+        """
+        config_dict = tune.config.copy()
+        config_dict.update(dancer.config)
+        config = LambadaConfig(obj['path'], config_dict)
+        click.echo('Uploading Package for {}'.format(dancer.name))
+        uploader = PackageUploader(config, None)
+        uploader.upload(pkg)
+
+    if dancer:
+        dancer_obj = tune.dancers.get(dancer, None)
+        if dancer_obj is None:
+            raise click.ClickException(
+                "Dancer {} doesn't exist".format(dancer)
+            )
+        upload_dancer(dancer_obj)
+    else:
+        for _, dancer in iteritems(tune.dancers):
+            upload_dancer(dancer)
+    pkg.clean_zipfile()
