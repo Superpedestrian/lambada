@@ -2,13 +2,18 @@ Lambada
 -------
 .. image:: https://img.shields.io/travis/Superpedestrian/lambada.svg
   :target: https://travis-ci.org/Superpedestrian/lambada
+  :alt: Build status
 .. image:: https://img.shields.io/coveralls/Superpedestrian/lambada.svg
   :target: https://coveralls.io/r/Superpedestrian/lambada
+  :alt: Coverage
+.. image:: https://img.shields.io/pypi/v/lambada.svg
+  :target: https://pypi.python.org/pypi/lambada
+  :alt: 'PyPI Package'
 .. image:: https://readthedocs.org/projects/lambada/badge/?version=latest
-  :target: https://readthedocs.org/projects/lambada/?badge=latest
+  :target: http://lambada.readthedocs.io/en/latest/?badge=latest
   :alt: Latest Documentation
 .. image:: https://readthedocs.org/projects/lambada/badge/?version=release
-  :target: https://readthedocs.org/projects/lambada/?badge=release
+  :target: :target: http://lambada.readthedocs.io/en/latest/?badge=release
   :alt: Release Documentation
 
 
