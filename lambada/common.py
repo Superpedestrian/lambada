@@ -16,7 +16,7 @@ from lambada import Lambada
 def get_lambada_class(path):
     """
     Given the path, find the lambada
-    class label by ``dir``ing for that type.
+    class label by :func:`dir` ing for that type.
 
     Args:
         path (click.Path): Path to folder or file
@@ -40,7 +40,9 @@ def get_lambada_class(path):
                 counter += 1
             except (Exception, SystemExit):
                 click.echo('Unable to import {}'.format(python_file))
-                click.echo('Got stack trace:\n{}'.format(traceback.print_exc))
+                click.echo('Got stack trace:\n{}'.format(
+                    ''.join(traceback.format_exc())
+                ))
 
     elif os.path.isfile(path):
         module_list.append(

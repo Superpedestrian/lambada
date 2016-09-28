@@ -16,7 +16,7 @@ ZIPFILE_UPLOAD_NAME = 'lambada.zip'
 
 def create_package(path, tune, requirements, destination=ZIPFILE_UPLOAD_NAME):
     """
-    Creates and returns the package using ``lambda_uploader``.
+    Creates and returns the package using :py:mod:`lambda_uploader`.
     """
 
     if os.path.isfile(path):

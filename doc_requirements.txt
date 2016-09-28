@@ -1,0 +1,6 @@
+-r requirements.txt
+mock
+sphinx
+sphinx-autobuild
+sphinxcontrib-napoleon
+sphinx-rtd-theme
