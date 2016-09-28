@@ -53,7 +53,7 @@ Now that you have your code, you can run the ``lambada`` command line
 tool after running ``pip install -r requirements.txt`` to do something
 like ``lambada list``
 
-.. code-block:: none
+::
 
     List of discovered lambda functions/dancers:
 
@@ -63,7 +63,7 @@ like ``lambada list``
 You can also test that lambda with an event passed on the command line
 using ``lambada run test_lambada --event 'Hello'`` to get:
 
-.. code-block:: none
+::
 
     Event: Hello
 
@@ -123,7 +123,7 @@ can do, so the contents of ``fouronthefloor.py`` would look like:
 
 Which gives a ``lambada list`` that looks like:
 
-.. code-block:: none
+::
 
     List of discovered lambda functions/dancers:
 
