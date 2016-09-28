@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Command line interface for running, packaging,
 and uploading commands to AWS.

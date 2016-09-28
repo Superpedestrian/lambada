@@ -18,7 +18,7 @@ setup(
     license='License :: OSI Approved :: Apache Software License',
     author='Superpedestrian, Inc',
     author_email='dev@superpedetrian.com',
-    url='',
+    url='https://github.com/Superpedestrian/lambada',
     description=(
         'A framework for multiple AWS lambdas in one library/package'
     ),
