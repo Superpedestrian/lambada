@@ -1,5 +1,5 @@
 """
-Sample lambda library using lambada for use in multiple AWSXS lambdas.
+Sample lambda library using lambada for use in multiple AWS lambdas.
 """
 from __future__ import unicode_literals, print_function
 import logging

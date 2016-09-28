@@ -45,7 +45,7 @@ class Dancer(object):
             function (callable): Function to wrap.
             name (str): Name of function.
             description (str): Description of function.
-            kwargs: See ``OPTIONAL_CONFIG`` for options, if not
+            kwargs: See :data:`OPTIONAL_CONFIG` for options, if not
                 specified in dancer, the Lambada objects configuration is
                 used, and if that is unspecified, the defaults listed there
                 are used.
@@ -84,8 +84,8 @@ class Lambada(object):
     def __init__(self, handler='lambda.tune', **kwargs):
         """
         Setup the data structure of dancers and do some auto configuration
-        for us with deploying to AWS using ``lambda-uploader``. See
-        ``OPTIONAL_CONFIG`` for arguments and defaults.
+        for us with deploying to AWS using :mod:`lambda_uploader`. See
+        :data:`OPTIONAL_CONFIG` for arguments and defaults.
         """
         self.config = dict(handler=handler)
         for key, default in iteritems(OPTIONAL_CONFIG):
@@ -126,7 +126,7 @@ class Lambada(object):
                 of the function decorated.
             description (str): Description field in AWS of the function.
             kwargs: Key/Value overrides of either defaults or Lambada class
-                configuration values. See ``OPTIONAL_CONFIG`` for
+                configuration values. See :data:`OPTIONAL_CONFIG` for
                 available options.
         Returns:
             Dancer: Object with configuration and callable that is the function
