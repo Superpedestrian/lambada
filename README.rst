@@ -27,7 +27,7 @@ Quickstart
 
 
 All you'll need to do to create a minimal lambada application is to
-add the following to a file called ``lambda.py``:
+add the following to a file called ``lambda.py`` :
 
 .. code-block:: python
 

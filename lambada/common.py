@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Common classes, functions, etc.
 """
@@ -6,6 +7,7 @@ from glob import glob
 import os
 import time
 import traceback
+from uuid import uuid4
 
 import click
 from lambda_uploader.config import Config, REQUIRED_PARAMS
@@ -24,39 +26,43 @@ def get_lambada_class(path):
     # Need to catch a lot more exceptions than usual
     # since I am trying to blindly load python files.
     # pylint: disable=broad-except
+
+    def load_module(python_file):
+        """
+        Try and load a python file as a module.
+        """
+        mod = None
+        try:
+            mod = imp.load_source(
+                '__temp{}__'.format(uuid4()),
+                python_file
+            )
+        except (Exception, SystemExit):
+            click.echo('Unable to import {}'.format(python_file))
+            click.echo('Got stack trace:\n{}'.format(
+                ''.join(traceback.format_exc())
+            ))
+        return mod
+
     tune = None
     module_list = []
-
     if os.path.isdir(path):
-        counter = 0
+        if path[-1] != os.sep:
+            path += os.sep
         for python_file in glob(path + '*.py'):
-            try:
-                module_list.append(
-                    imp.load_source(
-                        '__temp{}__'.format(counter),
-                        python_file
-                    )
-                )
-                counter += 1
-            except (Exception, SystemExit):
-                click.echo('Unable to import {}'.format(python_file))
-                click.echo('Got stack trace:\n{}'.format(
-                    ''.join(traceback.format_exc())
-                ))
-
+            mod = load_module(python_file)
+            if mod is not None:
+                module_list.append(mod)
     elif os.path.isfile(path):
-        module_list.append(
-            imp.load_source('__temp__', path)
-        )
+        mod = load_module(path)
+        if mod is not None:
+            module_list.append(mod)
     else:
         raise click.ClickException('Path does not exist')
 
     for module in module_list:
         for name in dir(module):
-            try:
-                item = getattr(module, name, None)
-            except ImportError:
-                item = None
+            item = getattr(module, name, None)
             if isinstance(item, Lambada):
                 tune = item
                 break
@@ -127,6 +133,7 @@ class LambdaContext(object):
         self.log_stream_name = log_stream_name
         self.identity = identity
         self.client_context = client_context
+        self._end = None
 
         if timeout:
             self._end = get_time_millis() + (timeout * 1000)
