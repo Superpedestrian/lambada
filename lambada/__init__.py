@@ -72,7 +72,7 @@ class Dancer(object):
         """
         Calls the function.
         """
-        self.function(*args, **kwargs)
+        return self.function(*args, **kwargs)
 
 
 class Lambada(object):
@@ -104,10 +104,10 @@ class Lambada(object):
         """
         dancer = context.function_name
         try:
-            self.dancers[dancer](event, context)
+            return self.dancers[dancer](event, context)
         except KeyError:
             raise Exception(
-                'No Matching Dancer for the tune: {}'.format(
+                'No matching dancer for the Lambda function: {}'.format(
                     dancer
                 )
             )
