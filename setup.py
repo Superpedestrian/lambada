@@ -12,7 +12,7 @@ with io.open('README.rst', encoding='UTF-8') as readme:
 
 setup(
     name='lambada',
-    version='0.0.0',
+    version='0.1.0',
     packages=find_packages(),
     package_data={},
     license='License :: OSI Approved :: Apache Software License',
