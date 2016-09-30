@@ -12,4 +12,4 @@ CONSTANT = 'asdf'
 @tune.dancer
 def lambda0(event, _):
     """Print the event we created"""
-    print('Event: {}'.format(event))
+    print('Event: {}'.format(event))  # pragma: no cover
