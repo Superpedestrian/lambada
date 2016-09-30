@@ -8,7 +8,7 @@ import logging
 
 from six import iteritems
 
-__version__ = '0.0.0'
+__version__ = '0.1.0'
 log = logging.getLogger(__name__)
 
 
