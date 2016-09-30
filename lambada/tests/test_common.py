@@ -37,12 +37,16 @@ class TestCommon(TestCase):
         self.assertIsNotNone(tune)
         self.assertTrue('test_lambada' in tune.dancers)
 
-        # Assert exception by specifying location that doesn't have lambada
-        path = make_fixture_path('nodancers')
+        # Assert exception by specifying location that doesn't exist
+        path = make_fixture_path('nodancers', 'nope.py')
         with assertRaisesRegex(
             self, click.ClickException, 'Path does not exist'
         ):
             common.get_lambada_class(path)
+
+        # Handle case with no dancers
+        path = make_fixture_path('nodancers')
+        self.assertIsNone(common.get_lambada_class(path))
 
         # Now a file that isn't a python file at all
         path = make_fixture_path('nodancers', 'fantastic.txt')
@@ -50,11 +54,13 @@ class TestCommon(TestCase):
         self.assertIsNone(tune)
 
         # Now by folder
-        tune = common.get_lambada_class(os.path.dirname(path) + os.sep)
+        tune = common.get_lambada_class(
+            make_fixture_path('nodancers', None)
+        )
         self.assertIsNone(tune)
 
         # Load a file that raises on import
-        path = make_fixture_path('raises', None)
+        path = make_fixture_path('raises', None) + '/'
         with patch('lambada.common.click.echo') as echo:
             common.get_lambada_class(path)
             self.assertIn("Exception('So unique, wow!')", echo.call_args[0][0])
