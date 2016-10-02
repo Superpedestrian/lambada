@@ -1,5 +1,3 @@
-Lambada
--------
 .. image:: https://img.shields.io/travis/Superpedestrian/lambada.svg
   :target: https://travis-ci.org/Superpedestrian/lambada
   :alt: Build status
@@ -17,8 +15,8 @@ Lambada
   :alt: Release Documentation
 
 
-A flask like framework for building multiple lambdas in one
-library/package by utilizing `lambda-uploader
+A `flask <http://flask.pocoo.org>`_ like framework for building
+multiple lambdas in one library/package by utilizing `lambda-uploader
 <https://pypi.python.org/pypi/lambda-uploader>`_.
 
 
