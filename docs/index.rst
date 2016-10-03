@@ -6,6 +6,11 @@
 Welcome to Lambada's documentation!
 ===================================
 
+.. image:: _static/img/logo.png
+   :width: 200px
+   :height: 261px
+   :align: center
+
 .. include:: ../README.rst
 
 
