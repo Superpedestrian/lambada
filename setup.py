@@ -32,6 +32,7 @@ setup(
     install_requires=[
         'lambda-uploader',
         'click',
+        'PyYAML',
         'six',
     ],
     zip_safe=True,

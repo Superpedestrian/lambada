@@ -43,8 +43,21 @@ class TestCLI(TestCase):
             )
 
         with patch('lambada.cli.build_package') as build_package:
-            cli.create_package(path, tune, None)
-            assert_build_call(build_package)
+            with patch('lambada.cli.io.open') as patched_open:
+                with patch('lambada.cli.os.remove') as patched_delete:
+                    cli.create_package(path, tune, None)
+                    # Make sure we called the underlying module correct
+                    assert_build_call(build_package)
+                    # Make sure we dumped the config
+                    self.assertTrue(tune.bouncer.export.called)
+                    # Make sure we opened the write path
+                    patched_open.assert_called_with(
+                        os.path.join(path_dirname, '_lambada.yml'),
+                        'w',
+                        encoding='UTF-8'
+                    )
+                    # Make sure we removed it after packaging
+                    self.assertTrue(patched_delete.called)
 
         # Verify it handles folder paths too
         with patch('lambada.cli.build_package') as build_package:
