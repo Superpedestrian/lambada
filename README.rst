@@ -74,18 +74,18 @@ which creates a faked AWS Context object before running the specified
 *dancer*.
 
 From there we can also package the functions (the same package works
-for all defined *dancers*/Lambda functions).  So without configuring any AWS credentials,
-we can run ``lambada package`` to create a zip file with all your
-requirements packaged up (from the earlier created
-``requirements.txt``) that you can manually upload to AWS Lambda through
-the Web interface or similar.
+for all defined *dancers*/Lambda functions).  So without configuring
+any AWS credentials, we can run ``lambada package`` to create a zip
+file with all your requirements packaged up (from the earlier created
+``requirements.txt``) that you can manually upload to AWS Lambda
+through the Web interface or similar.
 
 If you have your AWS API credentials setup, and the correct
 permissions, you can also run ``lambada upload`` to have the function
 created and/or versioned with the packaged code for each *dancer*.
 
-Pretty neat so far, but where it starts to cool is when there are many
-*dancers* with different requirements, VPCs, timeouts, and memory
+Pretty neat so far, but where it starts to get cool is when there are
+many *dancers* with different requirements, VPCs, timeouts, and memory
 requirements all in the same deployable package similar to the
 following.  We're going to go ahead and call our file
 ``fouronthefloor.py`` just as a reference for the customization you
