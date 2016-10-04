@@ -1,0 +1,3 @@
+This directory is required for sphinx to build without warning. This
+file can be deleted as soon as there is an actual static file for
+these docs.

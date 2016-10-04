@@ -1,0 +1,4 @@
+
+[BASIC]
+# Allow log because I like it
+const-rgx = (([A-Z_][A-Z0-9_]*)|(__.*__)|log|tune)

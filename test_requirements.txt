@@ -1,0 +1,11 @@
+ipdb
+mock
+pudb
+pytest
+pytest-cache
+pytest-cov
+pytest-pep8
+pytest-pylint
+pytest-watch
+pytest-xdist
+semantic_version
