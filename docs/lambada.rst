@@ -7,9 +7,6 @@ Lambada Reference API Documentation
     :show-inheritance:
 
 
-Modules
-----------
-
 lambada.cli module
 ------------------
 

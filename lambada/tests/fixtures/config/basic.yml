@@ -1,0 +1,5 @@
+foo: bar
+baz: things
+fluff:
+  - 'marshmellow'
+  - 'pillow'
