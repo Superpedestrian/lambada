@@ -1,5 +1,3 @@
-Lambada
--------
 .. image:: https://img.shields.io/travis/Superpedestrian/lambada.svg
   :target: https://travis-ci.org/Superpedestrian/lambada
   :alt: Build status
@@ -13,14 +11,13 @@ Lambada
   :target: http://lambada.readthedocs.io/en/latest/?badge=latest
   :alt: Latest Documentation
 .. image:: https://readthedocs.org/projects/lambada/badge/?version=release
-  :target: :target: http://lambada.readthedocs.io/en/latest/?badge=release
+  :target: http://lambada.readthedocs.io/en/release/?badge=release
   :alt: Release Documentation
 
 
-A flask like framework for building multiple lambdas in one
-library/package by utilizing `lambda-uploader
+A `flask <http://flask.pocoo.org>`_ like framework for building
+multiple lambdas in one library/package by utilizing `lambda-uploader
 <https://pypi.python.org/pypi/lambda-uploader>`_.
-
 
 Quickstart
 ==========
@@ -87,11 +84,12 @@ permissions, you can also run ``lambada upload`` to have the function
 created and/or versioned with the packaged code for each *dancer*.
 
 Pretty neat so far, but where it starts to get cool is when there are
-many *dancers* with different requirements, VPCs, timeouts, and memory
-requirements all in the same deployable package similar to the
-following.  We're going to go ahead and call our file
-``fouronthefloor.py`` just as a reference for the customization you
-can do, so the contents of ``fouronthefloor.py`` would look like:
+many *dancers* with different requirements, VPCs, timeouts, security
+configuration, and memory requirements all in the same deployable
+package similar to the following.  We're going to go ahead and call
+our file ``fouronthefloor.py`` just as a reference for the
+customization you can do, so the contents of ``fouronthefloor.py``
+would look like:
 
 .. code-block:: python
 
@@ -149,3 +147,70 @@ Which gives a ``lambada list`` that looks like:
 And with a few lines we've created three lambdas with different execution
 requirements all with one ``lambada upload`` command. Such a simple
 seductive dance 😜.
+
+Bouncers
+========
+
+AWS Lambda doesn't yet feature a way to add secure configuration items
+through environment variables (if it ever will), but there is often a
+need to have secrets that you don't want checked into source control
+such as API keys, passwords, certificates, etc.  Generally it is nice
+to specify these with an out of source tree configuration file or
+environment variables. To achieve that here, we have the concept of
+``Bouncer`` objects.  This configuration object is created by default
+when you instantiate the ``Lambada`` class with a default configuration
+that you can use out of the box.  The default
+:py:obj:`lambada.Bouncer` object looks for YAML configuration files in
+the following paths:
+
+- Path specified by the environment variable ``BOUNCER_CONFIG``
+- The current working directory for ``lambada.yml``
+- Your ``HOME`` directory for ``.lambada.yml``
+- ``/etc/lambada.yml``
+
+and it does so in that order, terminating as soon as it successfully finds one.
+
+
+In addition to those configuration files, it also will automatically
+add any variable prefixed with ``BOUNCER_`` (again default, and can be
+changed to an arbitrary prefix) to the bouncer configuration.  This
+means that without any code you can add configuration to your Lambada
+project by just adding say ``BOUNCER_API_KEY`` to your local
+configuration and referencing it in your code as
+``tune.bouncer.api_key`` (assuming ``tune`` is the variable you chose
+for your lambada class.
+
+Similarly, if you define a ``lambada.yml`` configuration file that looks like:
+
+.. code-block:: yaml
+
+   api_key: 1234abcd
+
+it will be accessible in the same way as ``tune.bouncer.api_key``.
+
+It is worth noting that the environment variable will override the
+same named variable in your yaml file.
+
+How this works in Lamda is that the Bouncer configuration on the
+Lambada is read when packaged for AWS and written to a _lambada.yml
+configuration and is looked for first when running in Lambda.
+
+
+Customizing Bouncers
+~~~~~~~~~~~~~~~~~~~~
+
+If those defaults don't work for you, you can also pass in your own
+``Bouncer`` to the ``Lambada`` object on creation. It allows you to directly pass in the path to the configuration and/or change the environment variable prefix like so:
+
+.. code-block:: python
+
+   from lambada import Bouncer, Lambada
+
+   bouncer = Bouncer(config='foobar.yml', env_prefix='COOL_')
+   tune = Lambada(bouncer=bouncer, role=bouncer.role)
+
+   @tune.dancer
+   def test_lambada(event, context):
+       print(bouncer.role)
+
+as an example, which lets you use bouncer to help configure the ``Lambada`` object

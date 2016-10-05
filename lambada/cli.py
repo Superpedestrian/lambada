@@ -3,6 +3,7 @@
 Command line interface for running, packaging,
 and uploading commands to AWS.
 """
+import io
 import os
 
 import click
@@ -23,6 +24,10 @@ def create_package(path, tune, requirements, destination=ZIPFILE_UPLOAD_NAME):
     if os.path.isfile(path):
         path = os.path.dirname(path)
     path = os.path.abspath(path)
+    # Write out bouncer configuration for package
+    bouncer_config = os.path.join(path, '_lambada.yml')
+    with io.open(bouncer_config, 'w', encoding='UTF-8') as bouncer_yaml:
+        tune.bouncer.export(bouncer_yaml)
     pkg = build_package(
         path,
         requirements,
@@ -32,6 +37,7 @@ def create_package(path, tune, requirements, destination=ZIPFILE_UPLOAD_NAME):
         zipfile_name=destination
     )
     pkg.clean_workspace()
+    os.remove(bouncer_config)
     return pkg
 
 

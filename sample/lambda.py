@@ -3,18 +3,19 @@ Sample lambda library using lambada for use in multiple AWS lambdas.
 """
 from __future__ import unicode_literals, print_function
 import logging
-from os import environ
 
-from lambada import Lambada
+from lambada import Lambada, Bouncer
 
 logging.basicConfig()
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
+bouncer = Bouncer()
 tune = Lambada(
     handler='lambda.tune',
+    bouncer=bouncer,
     region='us-east-1',
-    role=environ.get('LAMBADA_ROLE')
+    role=bouncer.role
 )
 
 
@@ -22,6 +23,8 @@ def print_args(event, context):
     """
     Prints out the event and context we were called with.
     """
+    print('AWS Role: {}'.format(bouncer.role))
+
     print('Event:')
     print(event)
 

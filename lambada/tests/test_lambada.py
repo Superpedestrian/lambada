@@ -1,10 +1,12 @@
 """
 Tests for the :mod::`lambada` module.
 """
+from __future__ import print_function
 from unittest import TestCase
 
-from mock import MagicMock
-from six import assertRaisesRegex
+from mock import MagicMock, patch
+from six import assertRaisesRegex, StringIO
+import yaml
 
 import lambada
 from lambada.common import LambdaContext, get_lambada_class
@@ -19,6 +21,98 @@ class TestLambada(TestCase):
     def sample_dancer(event, context):
         """Function to use as wrapper."""
         return event, context
+
+    @patch('lambada.get_config_from_env')
+    @patch('lambada.get_config_from_file')
+    def test_bouncer(self, config_file, config_env):
+        """Validate bouncer class."""
+        config_env.return_value = dict(foo='bar')
+        config_file.return_value = dict(foo='baz', bar='foo')
+        bouncer = lambada.Bouncer()
+        self.assertTrue(config_file.called)
+        self.assertTrue(config_env.called)
+        # Assert that env wins over file
+        self.assertEqual(bouncer.foo, 'bar')
+        # But that it isn't fully replaced by env
+        self.assertEqual(bouncer.bar, 'foo')
+
+        # Still raise error when key doesn't exist.
+        with self.assertRaises(KeyError):
+            print(bouncer.fhqwhgads)
+
+        # And that we can't change attributes easily
+        with self.assertRaises(TypeError):
+            bouncer.bar = 'blah'
+
+        # And shouldn't be able to add them.
+        with self.assertRaises(TypeError):
+            bouncer.gooble = 'asdf'
+
+        # Write out yaml and validate
+        yaml_output = StringIO()
+        bouncer.export(yaml_output)
+        self.assertIn('foo: bar', yaml_output.getvalue())
+        self.assertIn('bar: foo', yaml_output.getvalue())
+        # Make sure we don't have our private attribute
+        self.assertNotIn('_frozen', yaml_output.getvalue())
+
+    def test_bouncer_env(self):
+        """
+        Validate the environment variable loader works as expected.
+        """
+        # Test it doesn't leak
+        with patch.dict('lambada.os.environ', dict(BLAH='asdf'), clear=True):
+            config = lambada.get_config_from_env()
+            self.assertFalse(config)
+
+        # Test it works with default
+        with patch.dict(
+            'lambada.os.environ', dict(BOUNCER_BLAH='asdf'), clear=True
+        ):
+            config = lambada.get_config_from_env()
+            self.assertDictEqual(config, dict(blah='asdf'))
+
+        # Test that we can override the prefix
+        with patch.dict(
+            'lambada.os.environ',
+            dict(STUFF_BLAH='asdf', STUFFS_BLAH='jkl;'),
+            clear=True
+        ):
+            config = lambada.get_config_from_env('STUFF_')
+            self.assertDictEqual(config, dict(blah='asdf'))
+
+    def test_bouncer_file(self):
+        """
+        Verify that we find and load configuration files as expected.
+        """
+        # Make sure we return None when there is no file.
+        config = lambada.get_config_from_file()
+        self.assertFalse(config)
+
+        # Load up a well known config that works
+        config = lambada.get_config_from_file(
+            make_fixture_path('config', 'basic.yml')
+        )
+        self.assertDictEqual(
+            dict(fluff=['marshmellow', 'pillow'], foo='bar', baz='things'),
+            config
+        )
+
+        # Load config from loop over  CONFIG_PATHS
+        with patch(
+            'lambada.CONFIG_PATHS',
+            [make_fixture_path('config', 'basic.yml')]
+        ):
+            config = lambada.get_config_from_file()
+            self.assertTrue('fluff' in config)
+
+        # Load a broken yaml file
+        with patch(
+            'lambada.CONFIG_PATHS',
+            [make_fixture_path('config', 'bad.yml')]
+        ):
+            with self.assertRaises(yaml.YAMLError):
+                config = lambada.get_config_from_file()
 
     def test_dancer_class(self):
         """

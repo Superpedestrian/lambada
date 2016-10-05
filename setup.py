@@ -12,7 +12,7 @@ with io.open('README.rst', encoding='UTF-8') as readme:
 
 setup(
     name='lambada',
-    version='0.1.0',
+    version='0.2.0',
     packages=find_packages(),
     package_data={},
     license='License :: OSI Approved :: Apache Software License',
@@ -32,6 +32,7 @@ setup(
     install_requires=[
         'lambda-uploader',
         'click',
+        'PyYAML',
         'six',
     ],
     zip_safe=True,
