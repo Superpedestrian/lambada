@@ -5,6 +5,7 @@ Common classes, functions, etc.
 import imp
 from glob import glob
 import os
+import sys
 import time
 import traceback
 from uuid import uuid4
@@ -32,6 +33,9 @@ def get_lambada_class(path):
         Try and load a python file as a module.
         """
         mod = None
+        # Copy path and append current directory
+        original_sys_path = sys.path[:]
+        sys.path.append(os.path.dirname(os.path.abspath(python_file)))
         try:
             mod = imp.load_source(
                 '__temp{}__'.format(uuid4()),
@@ -42,6 +46,9 @@ def get_lambada_class(path):
             click.echo('Got stack trace:\n{}'.format(
                 ''.join(traceback.format_exc())
             ))
+        finally:
+            # Restore path
+            sys.path = original_sys_path[:]
         return mod
 
     tune = None

@@ -10,7 +10,7 @@ import os
 from six import iteritems
 import yaml
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 log = logging.getLogger(__name__)
 
 

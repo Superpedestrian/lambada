@@ -3,6 +3,7 @@
 Tests for the :mod::`lambada.common` module.
 """
 import os
+import sys
 from unittest import TestCase
 
 import click
@@ -33,9 +34,11 @@ class TestCommon(TestCase):
         self.assertTrue('test_lambada' in tune.dancers)
 
         # Now by folder
+        original_sys_path = sys.path[:]
         tune = common.get_lambada_class(os.path.dirname(path))
         self.assertIsNotNone(tune)
         self.assertTrue('test_lambada' in tune.dancers)
+        self.assertEqual(original_sys_path, sys.path)
 
         # Assert exception by specifying location that doesn't exist
         path = make_fixture_path('nodancers', 'nope.py')
