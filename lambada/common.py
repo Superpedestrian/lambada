@@ -33,6 +33,7 @@ def get_lambada_class(path):
         Try and load a python file as a module.
         """
         mod = None
+        # Copy path and append current directory
         original_sys_path = sys.path[:]
         sys.path.append(os.path.dirname(os.path.abspath(python_file)))
         try:
@@ -46,7 +47,8 @@ def get_lambada_class(path):
                 ''.join(traceback.format_exc())
             ))
         finally:
-            sys.path = original_sys_path
+            # Restore path
+            sys.path = original_sys_path[:]
         return mod
 
     tune = None

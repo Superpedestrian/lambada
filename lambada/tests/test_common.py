@@ -3,6 +3,7 @@
 Tests for the :mod::`lambada.common` module.
 """
 import os
+import sys
 from unittest import TestCase
 
 import click
