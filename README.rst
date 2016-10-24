@@ -206,7 +206,7 @@ If those defaults don't work for you, you can also pass in your own
 
    from lambada import Bouncer, Lambada
 
-   bouncer = Bouncer(config='foobar.yml', env_prefix='COOL_')
+   bouncer = Bouncer(config_file='foobar.yml', env_prefix='COOL_')
    tune = Lambada(bouncer=bouncer, role=bouncer.role)
 
    @tune.dancer
