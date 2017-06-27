@@ -158,6 +158,6 @@ def upload(obj, requirements, dancer):
             )
         upload_dancer(dancer_obj)
     else:
-        for _, dancer in iteritems(tune.dancers):
-            upload_dancer(dancer)
+        for _, dancer_obj in iteritems(tune.dancers):
+            upload_dancer(dancer_obj)
     pkg.clean_zipfile()

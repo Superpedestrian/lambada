@@ -16,6 +16,7 @@ log = logging.getLogger(__name__)
 
 OPTIONAL_CONFIG = dict(
     region='us-east-1',
+    runtime='python2.7',
     role=None,
     timeout=30,
     memory=128,

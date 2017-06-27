@@ -6,7 +6,7 @@ from __future__ import print_function
 from lambada import Lambada
 
 tune = Lambada(role='arn:aws:iam:xxxxxxx:role/lambda')
-CONSTANT = 'asdf'
+CONSTANT = 'eversoslightlydifferent'
 
 
 @tune.dancer
